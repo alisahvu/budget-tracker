@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Budget Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .auth-container {
+            max-width: 400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            animation: slideUp 0.6s ease-out;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #2d3748;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            color: #718096;
+            font-size: 1.1rem;
+        }
+
+        .user-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f7fafc;
+            border-radius: 10px;
+        }
+
+        .welcome-text {
+            color: #2d3748;
+            font-weight: 600;
+        }
+
+        .logout-btn {
+            background: #e53e3e;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: #c53030;
+            transform: translateY(-1px);
+        }
+
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: linear-gradient(135deg, #ffffff 0%, #f7fafc 100%);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+        }
+
+        .card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .card h3 {
+            color: #4a5568;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .card .amount {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .income { color: #48bb78; }
+        .expenses { color: #f56565; }
+        .balance { color: #4299e1; }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .section {
+            background: #ffffff;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e2e8f0;
+        }
+
+        .section h2 {
+            color: #2d3748;
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #4a5568;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: #f7fafc;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            background: #ffffff;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            width: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .transaction-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .transaction-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+            border-radius: 8px;
+            margin-bottom: 5px;
+            position: relative;
+        }
+
+        .transaction-item:hover {
+            background: #f7fafc;
+            transform: translateX(5px);
+        }
+
+        .transaction-info h4 {
+            color: #2d3748;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .transaction-info p {
+            color: #718096;
+            font-size: 0.9rem;
+        }
+
+        .transaction-amount {
+            font-weight: 700;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .delete-btn {
+            background: #f56565;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: scale(0.8);
+            margin-left: 10px;
+        }
+
+        .transaction-item:hover .delete-btn {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .delete-btn:hover {
+            background: #e53e3e;
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(245, 101, 101, 0.3);
+        }
+
+        .delete-btn:active {
+            transform: scale(0.95);
+        }
+
+        .positive { color: #48bb78; }
+        .negative { color: #f56565; }
+
+        .icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 8px;
+        }
+
+        .auth-toggle {
+            text-align: center;
+            margin-top: 20px;
+            color: #718096;
+        }
+
+        .auth-toggle a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .auth-toggle a:hover {
+            text-decoration: underline;
+        }
+
+        .error-message {
+            background: #fed7d7;
+            color: #c53030;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .success-message {
+            background: #c6f6d5;
+            color: #2f855a;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .summary-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .container, .auth-container {
+                padding: 20px;
+                margin: 10px;
+            }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Authentication Screen -->
+    <div id="authScreen" class="auth-container">
+        <div class="header">
+            <h1>💰 Budget Tracker</h1>
+            <p id="authSubtitle">Sign in to manage your finances</p>
+        </div>
+
+        <div id="errorMessage" class="error-message" style="display: none;"></div>
+        <div id="successMessage" class="success-message" style="display: none;"></div>
+
+        <!-- Login Form -->
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="loginEmail">Email</label>
+                <input type="email" id="loginEmail" required>
+            </div>
+            <div class="form-group">
+                <label for="loginPassword">Password</label>
+                <input type="password" id="loginPassword" required>
+            </div>
+            <button type="submit" class="btn">Sign In</button>
+        </form>
+
+        <!-- Register Form -->
+        <form id="registerForm" style="display: none;">
+            <div class="form-group">
+                <label for="registerName">Full Name</label>
+                <input type="text" id="registerName" required>
+            </div>
+            <div class="form-group">
+                <label for="registerEmail">Email</label>
+                <input type="email" id="registerEmail" required>
+            </div>
+            <div class="form-group">
+                <label for="registerPassword">Password</label>
+                <input type="password" id="registerPassword" required>
+            </div>
+            <button type="submit" class="btn">Create Account</button>
+        </form>
+
+        <div class="auth-toggle">
+            <span id="authToggleText">Don't have an account?</span>
+            <a href="#" id="authToggleLink">Sign up</a>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div id="mainApp" class="container" style="display: none;">
+        <div class="user-info">
+            <div class="welcome-text">Welcome, <span id="userName"></span>!</div>
+            <button id="logoutBtn" class="logout-btn">Logout</button>
+        </div>
+
+        <div class="header">
+            <h1>💰 Budget Tracker</h1>
+            <p>Take control of your finances with smart budgeting</p>
+        </div>
+
+        <div class="summary-cards">
+            <div class="card">
+                <h3>💳 Total Income</h3>
+                <div class="amount income" id="totalIncome">$0.00</div>
+                <p style="color: #718096; font-size: 0.9rem;">This month</p>
+            </div>
+            <div class="card">
+                <h3>💸 Total Expenses</h3>
+                <div class="amount expenses" id="totalExpenses">$0.00</div>
+                <p style="color: #718096; font-size: 0.9rem;">This month</p>
+            </div>
+            <div class="card">
+                <h3>💎 Balance</h3>
+                <div class="amount balance" id="balance">$0.00</div>
+                <p style="color: #718096; font-size: 0.9rem;">Available</p>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="section">
+                <h2>
+                    <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/>
+                    </svg>
+                    Add Transaction
+                </h2>
+                <form id="transactionForm">
+                    <div class="form-group">
+                        <label for="description">Description</label>
+                        <input type="text" id="description" placeholder="e.g., Grocery shopping" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="amount">Amount</label>
+                        <input type="number" id="amount" placeholder="0.00" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="type">Type</label>
+                        <select id="type" required>
+                            <option value="">Select type</option>
+                            <option value="income">Income</option>
+                            <option value="expense">Expense</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="category">Category</label>
+                        <select id="category" required>
+                            <option value="">Select category</option>
+                            <option value="food">🍔 Food</option>
+                            <option value="transport">🚗 Transport</option>
+                            <option value="entertainment">🎬 Entertainment</option>
+                            <option value="utilities">⚡ Utilities</option>
+                            <option value="salary">💼 Salary</option>
+                            <option value="other">📦 Other</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn">Add Transaction</button>
+                </form>
+            </div>
+
+            <div class="section">
+                <h2>
+                    <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M9 11H7v6h2v-6zm4 0h-2v6h2v-6zm4 0h-2v6h2v-6zm2.5-9H19V1h-2v1H7V1H5v1H4.5C3.12 2 2 3.12 2 4.5v15C2 20.88 3.12 22 4.5 22h15c1.38 0 2.5-1.12 2.5-2.5v-15C22 3.12 20.88 2 19.5 2z"/>
+                    </svg>
+                    Recent Transactions
+                </h2>
+                <div class="transaction-list" id="transactionList">
+                    <div style="text-align: center; color: #718096; padding: 40px;">
+                        No transactions yet. Add your first transaction!
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/api';
+        let currentUser = null;
+        let authToken = localStorage.getItem('authToken');
+
+        // DOM Elements
+        const authScreen = document.getElementById('authScreen');
+        const mainApp = document.getElementById('mainApp');
+        const loginForm = document.getElementById('loginForm');
+        const registerForm = document.getElementById('registerForm');
+        const authToggleLink = document.getElementById('authToggleLink');
+        const authToggleText = document.getElementById('authToggleText');
+        const authSubtitle = document.getElementById('authSubtitle');
+        const errorMessage = document.getElementById('errorMessage');
+        const successMessage = document.getElementById('successMessage');
+        const userName = document.getElementById('userName');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const transactionForm = document.getElementById('transactionForm');
+        const transactionList = document.getElementById('transactionList');
+        const totalIncomeEl = document.getElementById('totalIncome');
+        const totalExpensesEl = document.getElementById('totalExpenses');
+        const balanceEl = document.getElementById('balance');
+
+        let isLoginMode = true;
+
+        // Utility functions
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+            successMessage.style.display = 'none';
+        }
+
+        function showSuccess(message) {
+            successMessage.textContent = message;
+            successMessage.style.display = 'block';
+            errorMessage.style.display = 'none';
+        }
+
+        function hideMessages() {
+            errorMessage.style.display = 'none';
+            successMessage.style.display = 'none';
+        }
+
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD'
+            }).format(Math.abs(amount));
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const diffTime = Math.abs(now - date);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            
+            if (diffDays === 1) return 'Today';
+            if (diffDays === 2) return 'Yesterday';
+            if (diffDays <= 7) return `${diffDays - 1} days ago`;
+            return `${Math.floor((diffDays - 1) / 7)} week${Math.floor((diffDays - 1) / 7) > 1 ? 's' : ''} ago`;
+        }
+
+        function getCategoryEmoji(category) {
+            const emojis = {
+                food: '🍔',
+                transport: '🚗',
+                entertainment: '🎬',
+                utilities: '⚡',
+                salary: '💼',
+                other: '📦'
+            };
+            return emojis[category] || '📦';
+        }
+
+        // API functions
+        async function apiCall(endpoint, options = {}) {
+            const url = `${API_BASE}${endpoint}`;
+            const config = {
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(authToken && { 'Authorization': `Bearer ${authToken}` })
+                },
+                ...options
+            };
+
+            try {
+                const response = await fetch(url, config);
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Something went wrong');
+                }
+
+                return data;
+            } catch (error) {
+                throw error;
+            }
+        }
+
+        async function login(email, password) {
+            const data = await apiCall('/login', {
+                method: 'POST',
+                body: JSON.stringify({ email, password })
+            });
+
+            authToken = data.token;
+            localStorage.setItem('authToken', authToken);
+            currentUser = data.user;
+            return data;
+        }
+
+        async function register(name, email, password) {
+            const data = await apiCall('/register', {
+                method: 'POST',
+                body: JSON.stringify({ name, email, password })
+            });
+
+            authToken = data.token;
+            localStorage.setItem('authToken', authToken);
+            currentUser = data.user;
+            return data;
+        }
+
+        async function getProfile() {
+            const data = await apiCall('/profile');
+            currentUser = data.user;
+            return data;
+        }
+
+        async function getTransactions() {
+            return await apiCall('/transactions');
+        }
+
+        async function addTransaction(transaction) {
+            return await apiCall('/transactions', {
+                method: 'POST',
+                body: JSON.stringify(transaction)
+            });
+        }
+
+        async function deleteTransaction(id) {
+            return await apiCall(`/transactions/${id}`, {
+                method: 'DELETE'
+            });
+        }
+
+        async function getSummary() {
+            return await apiCall('/summary');
+        }
+
+        // Auth functions
+        function toggleAuthMode() {
+            isLoginMode = !isLoginMode;
+            
+            if (isLoginMode) {
+                loginForm.style.display = 'block';
+                registerForm.style.display = 'none';
+                authToggleText.textContent = "Don't have an account?";
+                authToggleLink.textContent = 'Sign up';
+                authSubtitle.textContent = 'Sign in to manage your finances';
+            } else {
+                loginForm.style.display = 'none';
+                registerForm.style.display = 'block';
+                authToggleText.textContent = 'Already have an account?';
+                authToggleLink.textContent = 'Sign in';
+                authSubtitle.textContent = 'Create your account to get started';
+            }
+            
+            hideMessages();
+        }
+
+        function logout() {
+            authToken = null;
+            currentUser = null;
+            localStorage.removeItem('authToken');
+            showAuthScreen();
+        }
+
+        function showAuthScreen() {
+            authScreen.style.display = 'block';
+            mainApp.style.display = 'none';
+        }
+
+        function showMainApp() {
+            authScreen.style.display = 'none';
+            mainApp.style.display = 'block';
+            userName.textContent = currentUser.name;
+            loadData();
+        }
+
+        // Data functions
+        async function loadData() {
+            try {
+                const [transactions, summary] = await Promise.all([
+                    getTransactions(),
+                    getSummary()
+                ]);
+
+                updateSummary(summary);
+                renderTransactions(transactions);
+            } catch (error) {
+                console.error('Error loading data:', error);
+                showError('Failed to load data');
+            }
+        }
+
+        function updateSummary(summary) {
+            totalIncomeEl.textContent = formatCurrency(summary.income);
+            totalExpensesEl.textContent = formatCurrency(summary.expenses);
+            balanceEl.textContent = formatCurrency(summary.balance);
+
+            // Add pulse animation to balance
+            balanceEl.classList.add('pulse');
+            setTimeout(() => balanceEl.classList.remove('pulse'), 2000);
+        }
+
+        function renderTransactions(transactions) {
+            if (transactions.length === 0) {
+                transactionList.innerHTML = `
+                    <div style="text-align: center; color: #718096; padding: 40px;">
+                        No transactions yet. Add your first transaction!
+                    </div>
+                `;
+                return;
+            }
+
+            transactionList.innerHTML = '';
+            transactions.slice().reverse().forEach(transaction => {
+                const div = document.createElement('div');
+                div.className = 'transaction-item';
+                div.style.opacity = '0';
+                div.style.transform = 'translateY(20px)';
+                
+                div.innerHTML = `
+                    <div class="transaction-info">
+                        <h4>${transaction.description}</h4>
+                        <p>${getCategoryEmoji(transaction.category)} ${transaction.category.charAt(0).toUpperCase() + transaction.category.slice(1)} • ${formatDate(transaction.date)}</p>
+                    </div>
+                    <div class="transaction-amount ${transaction.amount > 0 ? 'positive' : 'negative'}">
+                        <span>${transaction.amount > 0 ? '+' : ''}${formatCurrency(transaction.amount)}</span>
+                        <button class="delete-btn" onclick="handleDeleteTransaction(${transaction.id})" title="Delete transaction">×</button>
+                    </div>
+                `;
+                
+                transactionList.appendChild(div);
+                
+                // Animate in
+                setTimeout(() => {
+                    div.style.transition = 'all 0.3s ease';
+                    div.style.opacity = '1';
+                    div.style.transform = 'translateY(0)';
+                }, 100);
+            });
+        }
+
+        async function handleDeleteTransaction(id) {
+            try {
+                // Find the transaction element and animate it out
+                const transactionElements = document.querySelectorAll('.transaction-item');
+                const elementToDelete = Array.from(transactionElements).find(el => 
+                    el.querySelector('.delete-btn').getAttribute('onclick').includes(id)
+                );
+                
+                if (elementToDelete) {
+                    elementToDelete.style.transition = 'all 0.3s ease';
+                    elementToDelete.style.transform = 'translateX(100%)';
+                    elementToDelete.style.opacity = '0';
+                    
+                    setTimeout(async () => {
+                        await deleteTransaction(id);
+                        loadData(); // Reload data after deletion
+                    }, 300);
+                } else {
+                    await deleteTransaction(id);
+                    loadData();
+                }
+            } catch (error) {
+                console.error('Error deleting transaction:', error);
+                showError('Failed to delete transaction');
+            }
+        }
+
+        // Event listeners
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            hideMessages();
+            
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            try {
+                loginForm.classList.add('loading');
+                await login(email, password);
+                showMainApp();
+            } catch (error) {
+                showError(error.message);
+            } finally {
+                loginForm.classList.remove('loading');
+            }
+        });
+
+        registerForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            hideMessages();
+            
+            const name = document.getElementById('registerName').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            
+            try {
+                registerForm.classList.add('loading');
+                await register(name, email, password);
+                showMainApp();
+            } catch (error) {
+                showError(error.message);
+            } finally {
+                registerForm.classList.remove('loading');
+            }
+        });
+
+        transactionForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const description = document.getElementById('description').value;
+            const amount = parseFloat(document.getElementById('amount').value);
+            const type = document.getElementById('type').value;
+            const category = document.getElementById('category').value;
+            
+            try {
+                transactionForm.classList.add('loading');
+                
+                await addTransaction({
+                    description,
+                    amount,
+                    type,
+                    category
+                });
+                
+                // Add success animation to form
+                transactionForm.style.transform = 'scale(1.02)';
+                setTimeout(() => {
+                    transactionForm.style.transform = 'scale(1)';
+                }, 200);
+                
+                transactionForm.reset();
+                loadData(); // Reload data after adding transaction
+            } catch (error) {
+                console.error('Error adding transaction:', error);
+                showError('Failed to add transaction');
+            } finally {
+                transactionForm.classList.remove('loading');
+            }
+        });
+
+        authToggleLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            toggleAuthMode();
+        });
+
+        logoutBtn.addEventListener('click', logout);
+
+        // Initialize app
+        async function init() {
+            if (authToken) {
+                try {
+                    await getProfile(); // Verify token is still valid
+                    showMainApp();
+                } catch (error) {
+                    // Token is invalid, clear it and show auth screen
+                    logout();
+                }
+            } else {
+                showAuthScreen();
+            }
+        }
+
+        // Start the app
+        init();
+
+        // Add some interactive hover effects
+        document.querySelectorAll('.card').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.style.transform = 'translateY(-8px) scale(1.02)';
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'translateY(0) scale(1)';
+            });
+        });
+    </script>
+</body>
+</html>
